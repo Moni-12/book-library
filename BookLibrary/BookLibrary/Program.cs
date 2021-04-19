@@ -34,9 +34,17 @@ namespace BookLibrary
                         break;
                     case "/add":
                         Book book = InOutUtils.ReadBook();
-                        allBooks.Add(book);
-                        InOutUtils.PrintBooksJson(allBooks, json);
-                        Console.WriteLine("Book added");
+                        if (book.Name.Length > 0 && book.Author.Length > 0 && book.Category.Length > 0 && book.Language.Length > 0 &&
+                            book.ISBN.Length > 0 && book.PublicationDate.Length > 0)
+                        {
+                            allBooks.Add(book);
+                            InOutUtils.PrintBooksJson(allBooks, json);
+                            Console.WriteLine("Book added");
+                        }
+                        else
+                        {
+                            Console.WriteLine("Not all fields are filled");
+                        }
                         break;
                     case "/take":
                         Console.Write("Enter book's ISBN: ");
@@ -45,23 +53,31 @@ namespace BookLibrary
                         string readerName = Console.ReadLine();
                         Reader reader = new Reader(readerName);
                         Console.Write("Enter return date: ");
-                        DateTime returnDate = Convert.ToDateTime(Console.ReadLine());
-                        if (DateTime.Now.AddMonths(maxMonthCount) >= returnDate && returnDate >= DateTime.Now)
+                        DateTime returnDate;
+                        DateTime.TryParse(Console.ReadLine(), out returnDate);
+                        if (reader.Name.Length > 0 && returnDate != null)
                         {
-                            bool successfulOperation;
-                            TaskUtils.TakeBook(allBooks, takenBooks, readers, takenIsbn, readerName, returnDate, out successfulOperation, maxBookCountForOneReader);
-                            if (successfulOperation)
+                            if (DateTime.Now.AddMonths(maxMonthCount) >= returnDate && returnDate >= DateTime.Now)
                             {
-                                Console.WriteLine("Book taken");
+                                bool successfulOperation;
+                                TaskUtils.TakeBook(allBooks, takenBooks, readers, takenIsbn, readerName, returnDate, out successfulOperation, maxBookCountForOneReader);
+                                if (successfulOperation)
+                                {
+                                    Console.WriteLine("Book taken");
+                                }
+                                else
+                                {
+                                    Console.WriteLine("Book can not be taken");
+                                }
                             }
                             else
                             {
-                                Console.WriteLine("Book can not be taken");
+                                Console.WriteLine("Book can only be taken for maximum 2 month period and return date can not be in the past.");
                             }
                         }
                         else
                         {
-                            Console.WriteLine("Book can only be taken for maximum 2 month period and return date can not be in the past.");
+                            Console.WriteLine("Not all fields are filled correct");
                         }
                         break;
                     case "/return":
